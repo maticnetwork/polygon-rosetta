@@ -195,6 +195,13 @@ var (
 		Code:    20, //nolint
 		Message: "unable to parse the transaction",
 	}
+
+	// ErrInvalidGasPrice is returned when input gas price
+	// is invalid.
+	ErrInvalidGasPrice = &types.Error{
+		Code:    21, //nolint
+		Message: "Gas price invalid",
+	}
 )
 
 // WrapErr adds details to the types.Error provided. We use a function

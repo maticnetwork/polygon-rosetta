@@ -179,7 +179,11 @@ func (ec *Client) PendingNonceAt(ctx context.Context, account common.Address) (u
 
 // SuggestGasPrice retrieves the currently suggested gas price to allow a timely
 // execution of a transaction.
-func (ec *Client) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
+func (ec *Client) SuggestGasPrice(ctx context.Context, gasPrice *big.Int) (*big.Int, error) {
+	if gasPrice != nil {
+		return gasPrice, nil
+	}
+
 	var hex hexutil.Big
 	if err := ec.c.CallContext(ctx, &hex, "eth_gasPrice"); err != nil {
 		return nil, err

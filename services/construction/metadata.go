@@ -90,7 +90,7 @@ func (a *APIService) ConstructionMetadata(
 	}
 
 	// TODO: Upgrade to use EIP1559
-	gasPrice, err := a.client.SuggestGasPrice(ctx)
+	gasPrice, err := a.client.SuggestGasPrice(ctx, input.GasPrice)
 	if err != nil {
 		return nil, svcErrors.WrapErr(svcErrors.ErrGeth, err)
 	}

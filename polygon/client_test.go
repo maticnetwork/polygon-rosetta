@@ -1340,7 +1340,7 @@ func TestPendingNonceAt(t *testing.T) {
 	mockGraphQL.AssertExpectations(t)
 }
 
-func TestSuggestGasPrice(t *testing.T) {
+func TestSuggestGasPrice_Nil(t *testing.T) {
 	mockJSONRPC := &mocks.JSONRPC{}
 	mockGraphQL := &mocks.GraphQL{}
 
@@ -1371,8 +1371,36 @@ func TestSuggestGasPrice(t *testing.T) {
 	).Once()
 	resp, err := c.SuggestGasPrice(
 		ctx,
+		nil,
 	)
 	assert.Equal(t, big.NewInt(100000), resp)
+	assert.NoError(t, err)
+
+	mockJSONRPC.AssertExpectations(t)
+	mockGraphQL.AssertExpectations(t)
+}
+
+func TestSuggestGasPrice_Valid(t *testing.T) {
+	mockJSONRPC := &mocks.JSONRPC{}
+	mockGraphQL := &mocks.GraphQL{}
+
+	cf, err := newERC20CurrencyFetcher(mockGraphQL)
+	assert.NoError(t, err)
+
+	c := &Client{
+		c:               mockJSONRPC,
+		g:               mockGraphQL,
+		currencyFetcher: cf,
+		traceSemaphore:  semaphore.NewWeighted(100),
+	}
+
+	ctx := context.Background()
+	gasPrice, _ := new(big.Int).SetString("100000000000", 10)
+	resp, err := c.SuggestGasPrice(
+		ctx,
+		gasPrice,
+	)
+	assert.Equal(t, gasPrice, resp)
 	assert.NoError(t, err)
 
 	mockJSONRPC.AssertExpectations(t)

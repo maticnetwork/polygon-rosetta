@@ -87,6 +87,25 @@ func (a *APIService) ConstructionPreprocess(
 		preprocessOutputOptions.Nonce = bigObj
 	}
 
+	// Override gas_price
+	if v, ok := request.Metadata["gas_price"]; ok {
+		stringObj, ok := v.(string)
+		if !ok {
+			return nil, svcErrors.WrapErr(
+				svcErrors.ErrInvalidGasPrice,
+				fmt.Errorf("%s is not a valid gas_price string", v),
+			)
+		}
+		bigObj, ok := new(big.Int).SetString(stringObj, 10) //nolint:gomnd
+		if !ok {
+			return nil, svcErrors.WrapErr(
+				svcErrors.ErrInvalidGasPrice,
+				fmt.Errorf("%s is not a valid gas_price", v),
+			)
+		}
+		preprocessOutputOptions.GasPrice = bigObj
+	}
+
 	// Only supports ERC20 transfers
 	currency := fromOp.Amount.Currency
 	if !isNativeCurrency(currency) {

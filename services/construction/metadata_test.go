@@ -83,7 +83,9 @@ func TestMetadata(t *testing.T) {
 				},
 			},
 			mocks: func(ctx context.Context, client *mocks.Client) {
-				client.On("SuggestGasPrice", ctx).
+				var gasPrice *big.Int = nil
+
+				client.On("SuggestGasPrice", ctx, gasPrice).
 					Return(big.NewInt(int64(transferGasPrice)), nil)
 			},
 		},
@@ -94,10 +96,12 @@ func TestMetadata(t *testing.T) {
 				"value": transferValueHex,
 			},
 			mocks: func(ctx context.Context, client *mocks.Client) {
+				var gasPrice *big.Int = nil
+
 				client.On("PendingNonceAt", ctx, common.HexToAddress(metadataFrom)).
 					Return(transferNonce, nil)
 
-				client.On("SuggestGasPrice", ctx).
+				client.On("SuggestGasPrice", ctx, gasPrice).
 					Return(big.NewInt(int64(transferGasPrice)), nil)
 			},
 			expectedResponse: &types.ConstructionMetadataResponse{
@@ -126,6 +130,8 @@ func TestMetadata(t *testing.T) {
 				"data":          metadataData,
 			},
 			mocks: func(ctx context.Context, client *mocks.Client) {
+				var gasPrice *big.Int = nil
+
 				to := common.HexToAddress(tokenContractAddress)
 				dataBytes, _ := hexutil.Decode(metadataData)
 				client.On("EstimateGas", ctx, ethereum.CallMsg{
@@ -134,7 +140,7 @@ func TestMetadata(t *testing.T) {
 					Data: dataBytes,
 				}).Return(transferGasLimitERC20, nil)
 
-				client.On("SuggestGasPrice", ctx).
+				client.On("SuggestGasPrice", ctx, gasPrice).
 					Return(big.NewInt(int64(transferGasPrice)), nil)
 			},
 			expectedResponse: &types.ConstructionMetadataResponse{

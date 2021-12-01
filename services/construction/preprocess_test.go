@@ -34,6 +34,8 @@ var (
 	preprocessTransferValue    = uint64(1)
 	preprocessTransferValueHex = hexutil.EncodeUint64(preprocessTransferValue)
 	preprocessData             = "0xa9059cbb000000000000000000000000efd3dc58d60af3295b92ecd484caeb3a2f30b3e70000000000000000000000000000000000000000000000000000000000000001" // nolint
+	preprocessGasPrice         = uint64(100000000000)
+	preprocessGasPriceHex      = hexutil.EncodeUint64(preprocessGasPrice)
 )
 
 func TestPreprocess(t *testing.T) {
@@ -105,6 +107,42 @@ func TestPreprocess(t *testing.T) {
 					"token_address": preprocessTokenContractAddress,
 					"data":          preprocessData,
 					"nonce":         "0x22",
+				},
+			},
+		},
+		"happy path: native currency with gas price": {
+			operations: templateOperations(preprocessTransferValue, polygon.Currency),
+			metadata: map[string]interface{}{
+				"gas_price": "100000000000",
+			},
+			expectedResponse: &types.ConstructionPreprocessResponse{
+				Options: map[string]interface{}{
+					"from":      preprocessFromAddress,
+					"to":        preprocessToAddress,
+					"value":     preprocessTransferValueHex,
+					"gas_price": preprocessGasPriceHex,
+				},
+			},
+		},
+		"happy path: ERC20 currency with gas price": {
+			operations: templateOperations(preprocessTransferValue, &types.Currency{
+				Symbol:   "USDC",
+				Decimals: 18,
+				Metadata: map[string]interface{}{
+					"token_address": preprocessTokenContractAddress,
+				},
+			}),
+			metadata: map[string]interface{}{
+				"gas_price": "100000000000",
+			},
+			expectedResponse: &types.ConstructionPreprocessResponse{
+				Options: map[string]interface{}{
+					"from":          preprocessFromAddress,
+					"to":            preprocessToAddress,
+					"value":         "0x0",
+					"token_address": preprocessTokenContractAddress,
+					"data":          preprocessData,
+					"gas_price":     preprocessGasPriceHex,
 				},
 			},
 		},

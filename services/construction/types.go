@@ -54,7 +54,7 @@ type Client interface {
 
 	EstimateGas(ctx context.Context, msg ethereum.CallMsg) (uint64, error)
 
-	SuggestGasPrice(ctx context.Context) (*big.Int, error)
+	SuggestGasPrice(ctx context.Context, gasPrice *big.Int) (*big.Int, error)
 
 	SendTransaction(ctx context.Context, tx *ethTypes.Transaction) error
 
@@ -77,6 +77,7 @@ type options struct {
 	To           string   `json:"to"`
 	TokenAddress string   `json:"token_address,omitempty"`
 	Value        *big.Int `json:"value,omitempty"`
+	GasPrice     *big.Int `json:"gas_price,omitempty"`
 }
 
 type optionsWire struct {
@@ -86,6 +87,7 @@ type optionsWire struct {
 	To           string `json:"to"`
 	TokenAddress string `json:"token_address,omitempty"`
 	Value        string `json:"value,omitempty"`
+	GasPrice     string `json:"gas_price,omitempty"`
 }
 
 func (o *options) MarshalJSON() ([]byte, error) {
@@ -108,6 +110,10 @@ func (o *options) MarshalJSON() ([]byte, error) {
 
 	if o.Value != nil {
 		ow.Value = hexutil.EncodeBig(o.Value)
+	}
+
+	if o.GasPrice != nil {
+		ow.GasPrice = hexutil.EncodeBig(o.GasPrice)
 	}
 
 	return json.Marshal(ow)
@@ -144,6 +150,14 @@ func (o *options) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		o.Value = value
+	}
+
+	if len(ow.GasPrice) > 0 {
+		gasPrice, err := hexutil.DecodeBig(ow.GasPrice)
+		if err != nil {
+			return err
+		}
+		o.GasPrice = gasPrice
 	}
 
 	return nil

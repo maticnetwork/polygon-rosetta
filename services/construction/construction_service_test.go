@@ -140,9 +140,12 @@ func TestConstructionFlowWithPendingNonce(t *testing.T) {
 		Value:    big.NewInt(42894881044106498),
 	}
 
+	var gasPrice *big.Int = nil
+
 	mockClient.On(
 		"SuggestGasPrice",
 		ctx,
+		gasPrice,
 	).Return(
 		big.NewInt(1000000000),
 		nil,
@@ -336,9 +339,12 @@ func TestConstructionFlowWithInputNonce(t *testing.T) {
 		Value:    big.NewInt(42894881044106498),
 	}
 
+	var gasPrice *big.Int = nil
+
 	mockClient.On(
 		"SuggestGasPrice",
 		ctx,
+		gasPrice,
 	).Return(
 		big.NewInt(1000000000),
 		nil,
