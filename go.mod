@@ -7,7 +7,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/google/addlicense v1.0.0 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a

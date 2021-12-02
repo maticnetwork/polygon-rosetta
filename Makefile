@@ -44,7 +44,7 @@ build-rosetta-local-bin:
 #### update ###
 ###############
 update-tracer:
-	curl https://raw.githubusercontent.com/ethereum/go-ethereum/master/eth/tracers/internal/tracers/call_tracer.js -o polygon/call_tracer.js
+	curl https://raw.githubusercontent.com/ethereum/go-ethereum/master/eth/tracers/js/internal/tracers/call_tracer_js.js -o polygon/call_tracer.js
 
 update-bootstrap-balances:
 	go run main.go utils:generate-bootstrap polygon/genesis_files/mainnet.json rosetta-cli-conf/mainnet/bootstrap_balances.json;

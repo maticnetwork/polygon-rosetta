@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	tracerTimeout = "120s"
+	tracerTimeout = "300s"
 )
 
 func loadTraceConfig() (*eth.TraceConfig, error) {
