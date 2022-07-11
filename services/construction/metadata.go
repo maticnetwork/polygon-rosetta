@@ -67,8 +67,14 @@ func (a *APIService) ConstructionMetadata(
 		return nil, svcErrors.WrapErr(svcErrors.ErrGeth, err)
 	}
 
-	// by default, initialize gasLimit to the TransferGasLimit
-	gasLimit := polygon.TransferGasLimit
+	var gasLimit uint64
+	if input.GasLimit == nil {
+		// by default, initialize gasLimit to the TransferGasLimit
+		gasLimit = polygon.TransferGasLimit
+	} else {
+		gasLimit = input.GasLimit.Uint64()
+	}
+	
 	to := checkTo
 	// Only work for ERC20 transfer
 	if len(input.TokenAddress) > 0 {
