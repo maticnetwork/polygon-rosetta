@@ -36,7 +36,7 @@ import (
 	EthTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/p2p"
+	// "github.com/ethereum/go-ethereum/p2p" // HOTFIX: temorarily unused
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -171,18 +171,21 @@ func (ec *Client) Status(ctx context.Context) (
 		}
 	}
 
-	peers, err := ec.peers(ctx)
-	if err != nil {
-		return nil, -1, nil, nil, err
-	}
+	// HOTFIX: temporarily removing this as it's unclear there is a current need
+	// peers, err := ec.peers(ctx)
+	// if err != nil {
+	// 	return nil, -1, nil, nil, err
+	// }
 
+	emptyPeerSlice := []*RosettaTypes.Peer{}
 	return &RosettaTypes.BlockIdentifier{
 			Hash:  header.Hash().Hex(),
 			Index: header.Number.Int64(),
 		},
 		convertTime(header.Time),
 		syncStatus,
-		peers,
+		// peers, // HOTFIX: removed temporarily
+		emptyPeerSlice,
 		nil
 }
 
@@ -215,33 +218,34 @@ func (ec *Client) EstimateGas(ctx context.Context, msg ethereum.CallMsg) (uint64
 }
 
 // Peers retrieves all peers of the node.
-func (ec *Client) peers(ctx context.Context) ([]*RosettaTypes.Peer, error) {
-	var info []*p2p.PeerInfo
+// currently not using
+// func (ec *Client) peers(ctx context.Context) ([]*RosettaTypes.Peer, error) {
+// 	var info []*p2p.PeerInfo
 
-	if ec.skipAdminCalls {
-		return []*RosettaTypes.Peer{}, nil
-	}
+// 	if ec.skipAdminCalls {
+// 		return []*RosettaTypes.Peer{}, nil
+// 	}
 
-	if err := ec.c.CallContext(ctx, &info, "admin_peers"); err != nil {
-		return nil, err
-	}
+// 	if err := ec.c.CallContext(ctx, &info, "admin_peers"); err != nil {
+// 		return nil, err
+// 	}
 
-	peers := make([]*RosettaTypes.Peer, len(info))
-	for i, peerInfo := range info {
-		peers[i] = &RosettaTypes.Peer{
-			PeerID: peerInfo.ID,
-			Metadata: map[string]interface{}{
-				"name":      peerInfo.Name,
-				"enode":     peerInfo.Enode,
-				"caps":      peerInfo.Caps,
-				"enr":       peerInfo.ENR,
-				"protocols": peerInfo.Protocols,
-			},
-		}
-	}
+// 	peers := make([]*RosettaTypes.Peer, len(info))
+// 	for i, peerInfo := range info {
+// 		peers[i] = &RosettaTypes.Peer{
+// 			PeerID: peerInfo.ID,
+// 			Metadata: map[string]interface{}{
+// 				"name":      peerInfo.Name,
+// 				"enode":     peerInfo.Enode,
+// 				"caps":      peerInfo.Caps,
+// 				"enr":       peerInfo.ENR,
+// 				"protocols": peerInfo.Protocols,
+// 			},
+// 		}
+// 	}
 
-	return peers, nil
-}
+// 	return peers, nil
+// }
 
 // SendTransaction injects a signed transaction into the pending pool for execution.
 //
@@ -711,18 +715,28 @@ func (ec *Client) erc20TokenOps(
 		if !ok {
 			return nil, fmt.Errorf("%s is not a valid address", toAddress)
 		}
+		
+		// HOTFIX: not fetching currency details
+		// currency, err := ec.currencyFetcher.fetchCurrency(ctx, contractAddress)
 
-		currency, err := ec.currencyFetcher.fetchCurrency(ctx, contractAddress)
 		// If an error is encountered while fetching currency details, return a default value and let the client handle it.
-		if err != nil {
-			log.Print(fmt.Sprintf("error while fetching currency details for currency: %s", contractAddress), err)
-			currency = &RosettaTypes.Currency{
-				Symbol:   defaultERC20Symbol,
-				Decimals: defaultERC20Decimals,
-				Metadata: map[string]interface{}{
-					ContractAddressKey: contractAddress,
-				},
-			}
+		// if err != nil {
+		// 	log.Print(fmt.Sprintf("error while fetching currency details for currency: %s", contractAddress), err)
+		// 	currency = &RosettaTypes.Currency{
+		// 		Symbol:   defaultERC20Symbol,
+		// 		Decimals: defaultERC20Decimals,
+		// 		Metadata: map[string]interface{}{
+		// 			ContractAddressKey: contractAddress,
+		// 		},
+		// 	}
+		// }
+
+		currency := &RosettaTypes.Currency{
+			Symbol:   defaultERC20Symbol,
+			Decimals: defaultERC20Decimals,
+			Metadata: map[string]interface{}{
+				ContractAddressKey: contractAddress,
+			},
 		}
 
 		fromOp := &RosettaTypes.Operation{
