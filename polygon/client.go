@@ -732,7 +732,8 @@ func (ec *Client) erc20TokenOps(
 		// }
 
 		var currencyMap map[string]*RosettaTypes.Currency
-		if ec.p.ChainID == big.NewInt(137) { // mainnet
+
+		if ec.p.ChainID.Uint64() == 137 { // mainnet
 			currencyMap = map[string]*RosettaTypes.Currency{
 				"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174": {
 					Symbol:   "USDC",
@@ -749,7 +750,7 @@ func (ec *Client) erc20TokenOps(
 					},
 				},
 			}
-		} else if ec.p.ChainID == big.NewInt(80001) { // mumbai
+		} else if ec.p.ChainID.Uint64() == 80001 { // mumbai
 			currencyMap = map[string]*RosettaTypes.Currency{
 				"0x0FA8781a83E46826621b3BC094Ea2A0212e71B23": {
 					Symbol:   "USDC",
