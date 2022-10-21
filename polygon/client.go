@@ -731,12 +731,56 @@ func (ec *Client) erc20TokenOps(
 		// 	}
 		// }
 
-		currency := &RosettaTypes.Currency{
+		var currencyMap map[string]*RosettaTypes.Currency
+		if ec.p.ChainID == big.NewInt(137) { // mainnet
+			currencyMap = map[string]*RosettaTypes.Currency{
+				"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+					},
+				},
+				"0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619": {
+					Symbol:   "WETH",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+					},
+				},
+			}
+		} else if ec.p.ChainID == big.NewInt(80001) { // mumbai
+			currencyMap = map[string]*RosettaTypes.Currency{
+				"0x0FA8781a83E46826621b3BC094Ea2A0212e71B23": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
+					},
+				},
+				"0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa": {
+					Symbol:   "WETH",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
+					},
+				},
+			}
+		}
+
+		defaultCurrency := &RosettaTypes.Currency{
 			Symbol:   defaultERC20Symbol,
 			Decimals: defaultERC20Decimals,
 			Metadata: map[string]interface{}{
 				ContractAddressKey: contractAddress,
 			},
+		}
+
+		currency := currencyMap[contractAddress]
+
+		// if we don't care about this currency, set to defaultCurrency
+		if currency == nil {
+			currency = defaultCurrency
 		}
 
 		fromOp := &RosettaTypes.Operation{
