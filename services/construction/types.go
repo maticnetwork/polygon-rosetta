@@ -73,33 +73,33 @@ type Client interface {
 //
 // Value here is MATIC. It will always be 0 for ERC20 tokens
 type options struct {
-	From            string   `json:"from"`
-	Nonce           *big.Int `json:"nonce,omitempty"`
-	Data            []byte   `json:"data,omitempty"`
-	To              string   `json:"to"`
-	TokenAddress    string   `json:"token_address,omitempty"`
-	ContractAddress string   `json:"contract_address,omitempty"`
-	Value           *big.Int `json:"value,omitempty"`
-	GasLimit        *big.Int `json:"gas_limit,omitempty"`
-	GasCap          *big.Int `json:"gas_cap,omitempty"`
-	GasTip          *big.Int `json:"gas_tip,omitempty"`
-	MethodSignature string   `json:"method_signature,omitempty"`
-	MethodArgs      []string `json:"method_args,omitempty"`
+	From            string      `json:"from"`
+	Nonce           *big.Int    `json:"nonce,omitempty"`
+	Data            []byte      `json:"data,omitempty"`
+	To              string      `json:"to"`
+	TokenAddress    string      `json:"token_address,omitempty"`
+	ContractAddress string      `json:"contract_address,omitempty"`
+	Value           *big.Int    `json:"value,omitempty"`
+	GasLimit        *big.Int    `json:"gas_limit,omitempty"`
+	GasCap          *big.Int    `json:"gas_cap,omitempty"`
+	GasTip          *big.Int    `json:"gas_tip,omitempty"`
+	MethodSignature string      `json:"method_signature,omitempty"`
+	MethodArgs      interface{} `json:"method_args,omitempty"`
 }
 
 type optionsWire struct {
-	From            string   `json:"from"`
-	Nonce           string   `json:"nonce,omitempty"`
-	Data            string   `json:"data,omitempty"`
-	To              string   `json:"to"`
-	TokenAddress    string   `json:"token_address,omitempty"`
-	ContractAddress string   `json:"contract_address,omitempty"`
-	Value           string   `json:"value,omitempty"`
-	GasLimit        string   `json:"gas_limit,omitempty"`
-	GasCap          string   `json:"gas_cap,omitempty"`
-	GasTip          string   `json:"gas_tip,omitempty"`
-	MethodSignature string   `json:"method_signature,omitempty"`
-	MethodArgs      []string `json:"method_args,omitempty"`
+	From            string      `json:"from"`
+	Nonce           string      `json:"nonce,omitempty"`
+	Data            string      `json:"data,omitempty"`
+	To              string      `json:"to"`
+	TokenAddress    string      `json:"token_address,omitempty"`
+	ContractAddress string      `json:"contract_address,omitempty"`
+	Value           string      `json:"value,omitempty"`
+	GasLimit        string      `json:"gas_limit,omitempty"`
+	GasCap          string      `json:"gas_cap,omitempty"`
+	GasTip          string      `json:"gas_tip,omitempty"`
+	MethodSignature string      `json:"method_signature,omitempty"`
+	MethodArgs      interface{} `json:"method_args,omitempty"`
 }
 
 func (o *options) MarshalJSON() ([]byte, error) {
@@ -203,27 +203,27 @@ func (o *options) UnmarshalJSON(data []byte) error {
 }
 
 type metadata struct {
-	Nonce           uint64   `json:"nonce"`
-	GasCap          *big.Int `json:"gas_cap"`
-	GasTip          *big.Int `json:"gas_tip"`
-	GasLimit        uint64   `json:"gas_limit,omitempty"`
-	Data            []byte   `json:"data,omitempty"`
-	To              string   `json:"to,omitempty"`
-	Value           *big.Int `json:"value,omitempty"`
-	MethodSignature string   `json:"method_signature,omitempty"`
-	MethodArgs      []string `json:"method_args,omitempty"`
+	Nonce           uint64      `json:"nonce"`
+	GasCap          *big.Int    `json:"gas_cap"`
+	GasTip          *big.Int    `json:"gas_tip"`
+	GasLimit        uint64      `json:"gas_limit,omitempty"`
+	Data            []byte      `json:"data,omitempty"`
+	To              string      `json:"to,omitempty"`
+	Value           *big.Int    `json:"value,omitempty"`
+	MethodSignature string      `json:"method_signature,omitempty"`
+	MethodArgs      interface{} `json:"method_args,omitempty"`
 }
 
 type metadataWire struct {
-	Nonce           string   `json:"nonce"`
-	GasCap          string   `json:"gas_cap"`
-	GasTip          string   `json:"gas_tip"`
-	GasLimit        string   `json:"gas_limit,omitempty"`
-	Data            string   `json:"data,omitempty"`
-	To              string   `json:"to,omitempty"`
-	Value           string   `json:"value,omitempty"`
-	MethodSignature string   `json:"method_signature,omitempty"`
-	MethodArgs      []string `json:"method_args,omitempty"`
+	Nonce           string      `json:"nonce"`
+	GasCap          string      `json:"gas_cap"`
+	GasTip          string      `json:"gas_tip"`
+	GasLimit        string      `json:"gas_limit,omitempty"`
+	Data            string      `json:"data,omitempty"`
+	To              string      `json:"to,omitempty"`
+	Value           string      `json:"value,omitempty"`
+	MethodSignature string      `json:"method_signature,omitempty"`
+	MethodArgs      interface{} `json:"method_args,omitempty"`
 }
 
 func (m *metadata) MarshalJSON() ([]byte, error) {
