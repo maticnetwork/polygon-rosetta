@@ -66,6 +66,12 @@ const (
 	eip1559TxType = 2
 )
 
+var (
+	// convert raw eth data from client to rosetta
+	tracerTimeout = "120s"
+	nativeTracer  = "callTracer"
+)
+
 // Client allows for querying a set of specific Ethereum endpoints in an
 // idempotent manner. Client relies on the eth_*, debug_*, and admin_*
 // methods and on the graphql endpoint.
@@ -109,9 +115,9 @@ func NewClient(cfg *ClientConfig) (*Client, error) {
 		c.SetHeader(header.Key, header.Value)
 	}
 
-	tc, err := loadTraceConfig()
-	if err != nil {
-		return nil, fmt.Errorf("%w: unable to load trace config", err)
+	tc := &tracers.TraceCallConfig{
+		Timeout: &tracerTimeout,
+		Tracer:  &nativeTracer,
 	}
 
 	g, err := newGraphQLClient(cfg.URL, cfg.Headers)

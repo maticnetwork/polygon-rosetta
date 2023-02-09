@@ -46,7 +46,6 @@ RUN cd src \
 
 RUN mv src/polygon-rosetta /app/polygon-rosetta \
   && mkdir /app/polygon \
-  && mv src/polygon/call_tracer.js /app/polygon/call_tracer.js \
   && mv src/polygon/geth.toml /app/polygon/geth.toml \
   && rm -rf src 
 
