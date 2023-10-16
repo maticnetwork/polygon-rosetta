@@ -1,6 +1,6 @@
 .PHONY: deps build run lint run-mainnet-online run-mainnet-offline run-testnet-online \
 	run-testnet-offline check-comments add-license check-license shorten-lines \
-	spellcheck salus build-local format check-format update-tracer test coverage coverage-local \
+	spellcheck salus build-local format check-format test coverage coverage-local \
 	update-bootstrap-balances mocks
 
 ADDLICENSE_CMD=go run github.com/google/addlicense
@@ -43,15 +43,6 @@ build-rosetta-local-bin:
 ################
 #### update ####
 ################
-
-# This is the default JS tracer
-update-tracer-js:
-	curl https://raw.githubusercontent.com/ethereum/go-ethereum/master/eth/tracers/js/internal/tracers/call_tracer_js.js -o polygon/call_tracer.js
-
-update-tracer-legacy:
-	curl https://raw.githubusercontent.com/ethereum/go-ethereum/master/eth/tracers/js/internal/tracers/call_tracer_legacy.js -o polygon/call_tracer_legacy.js
-
-# TODO: add native tracer as well
 
 update-bootstrap-balances:
 	go run main.go utils:generate-bootstrap polygon/genesis_files/mainnet.json rosetta-cli-conf/mainnet/bootstrap_balances.json;

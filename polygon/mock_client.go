@@ -52,17 +52,11 @@ const (
 	symbolABIEncoded = "0x95d89b41"
 )
 
-func testTraceConfig() (*tracers.TraceCallConfig, error) {
-	loadedFile, err := ioutil.ReadFile("call_tracer.js")
-	if err != nil {
-		return nil, fmt.Errorf("%w: could not load tracer file", err)
-	}
-
-	loadedTracer := string(loadedFile)
+func testTraceConfig() *tracers.TraceCallConfig {
 	return &tracers.TraceCallConfig{
 		Timeout: &tracerTimeout,
-		Tracer:  &loadedTracer,
-	}, nil
+		Tracer:  &nativeTracer,
+	}
 }
 
 // Wrapper around Client
@@ -79,10 +73,7 @@ func createMockClient(ctx context.Context, t *testing.T) (*mockClient, error) {
 	mockJSONRPC := &mocks.JSONRPC{}
 	mockGraphQL := &mocks.GraphQL{}
 
-	tc, err := testTraceConfig()
-	if err != nil {
-		return nil, err
-	}
+	tc := testTraceConfig()
 
 	cf, err := newERC20CurrencyFetcher(mockGraphQL)
 	if err != nil {
