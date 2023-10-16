@@ -36,7 +36,8 @@ import (
 	EthTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/p2p"
+
+	// "github.com/ethereum/go-ethereum/p2p" // HOTFIX: temorarily unused
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	BorTypes "github.com/maticnetwork/polygon-rosetta/polygon/types"
@@ -170,18 +171,21 @@ func (ec *Client) Status(ctx context.Context) (
 		}
 	}
 
-	peers, err := ec.peers(ctx)
-	if err != nil {
-		return nil, -1, nil, nil, err
-	}
+	// HOTFIX: temporarily removing this as it's unclear there is a current need
+	// peers, err := ec.peers(ctx)
+	// if err != nil {
+	// 	return nil, -1, nil, nil, err
+	// }
 
+	emptyPeerSlice := []*RosettaTypes.Peer{}
 	return &RosettaTypes.BlockIdentifier{
 			Hash:  header.Hash().Hex(),
 			Index: header.Number.Int64(),
 		},
 		convertTime(header.Time),
 		syncStatus,
-		peers,
+		// peers, // HOTFIX: removed temporarily
+		emptyPeerSlice,
 		nil
 }
 
@@ -214,33 +218,34 @@ func (ec *Client) EstimateGas(ctx context.Context, msg ethereum.CallMsg) (uint64
 }
 
 // Peers retrieves all peers of the node.
-func (ec *Client) peers(ctx context.Context) ([]*RosettaTypes.Peer, error) {
-	var info []*p2p.PeerInfo
+// currently not using
+// func (ec *Client) peers(ctx context.Context) ([]*RosettaTypes.Peer, error) {
+// 	var info []*p2p.PeerInfo
 
-	if ec.skipAdminCalls {
-		return []*RosettaTypes.Peer{}, nil
-	}
+// 	if ec.skipAdminCalls {
+// 		return []*RosettaTypes.Peer{}, nil
+// 	}
 
-	if err := ec.c.CallContext(ctx, &info, "admin_peers"); err != nil {
-		return nil, err
-	}
+// 	if err := ec.c.CallContext(ctx, &info, "admin_peers"); err != nil {
+// 		return nil, err
+// 	}
 
-	peers := make([]*RosettaTypes.Peer, len(info))
-	for i, peerInfo := range info {
-		peers[i] = &RosettaTypes.Peer{
-			PeerID: peerInfo.ID,
-			Metadata: map[string]interface{}{
-				"name":      peerInfo.Name,
-				"enode":     peerInfo.Enode,
-				"caps":      peerInfo.Caps,
-				"enr":       peerInfo.ENR,
-				"protocols": peerInfo.Protocols,
-			},
-		}
-	}
+// 	peers := make([]*RosettaTypes.Peer, len(info))
+// 	for i, peerInfo := range info {
+// 		peers[i] = &RosettaTypes.Peer{
+// 			PeerID: peerInfo.ID,
+// 			Metadata: map[string]interface{}{
+// 				"name":      peerInfo.Name,
+// 				"enode":     peerInfo.Enode,
+// 				"caps":      peerInfo.Caps,
+// 				"enr":       peerInfo.ENR,
+// 				"protocols": peerInfo.Protocols,
+// 			},
+// 		}
+// 	}
 
-	return peers, nil
-}
+// 	return peers, nil
+// }
 
 // SendTransaction injects a signed transaction into the pending pool for execution.
 //
@@ -711,17 +716,154 @@ func (ec *Client) erc20TokenOps(
 			return nil, fmt.Errorf("%s is not a valid address", toAddress)
 		}
 
-		currency, err := ec.currencyFetcher.fetchCurrency(ctx, contractAddress)
+		// HOTFIX: not fetching currency details
+		// currency, err := ec.currencyFetcher.fetchCurrency(ctx, contractAddress)
+
 		// If an error is encountered while fetching currency details, return a default value and let the client handle it.
-		if err != nil {
-			log.Print(fmt.Sprintf("error while fetching currency details for currency: %s", contractAddress), err)
-			currency = &RosettaTypes.Currency{
-				Symbol:   defaultERC20Symbol,
-				Decimals: defaultERC20Decimals,
-				Metadata: map[string]interface{}{
-					ContractAddressKey: contractAddress,
+		// if err != nil {
+		// 	log.Print(fmt.Sprintf("error while fetching currency details for currency: %s", contractAddress), err)
+		// 	currency = &RosettaTypes.Currency{
+		// 		Symbol:   defaultERC20Symbol,
+		// 		Decimals: defaultERC20Decimals,
+		// 		Metadata: map[string]interface{}{
+		// 			ContractAddressKey: contractAddress,
+		// 		},
+		// 	}
+		// }
+
+		var currencyMap map[string]*RosettaTypes.Currency
+
+		if ec.p.ChainID.Uint64() == 137 { // mainnet
+			currencyMap = map[string]*RosettaTypes.Currency{
+				// bridged USDC
+				"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+					},
+				},
+				// native USDC
+				"0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+					},
+				},
+				"0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619": {
+					Symbol:   "WETH",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+					},
+				},
+				// VOXEL
+				"0xd0258a3fD00f38aa8090dfee343f10A9D4d30D3F": {
+					Symbol:   "VOXEL",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0xd0258a3fD00f38aa8090dfee343f10A9D4d30D3F",
+					},
+				},
+				// PWBTC
+				"0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6": {
+					Symbol:   "WBTC",
+					Decimals: 8,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
+					},
+				},
+				// PDAI
+				"0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063": {
+					Symbol:   "DAI",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+					},
+				},
+				// PCBETH
+				"0x4b4327dB1600B8B1440163F667e199CEf35385f5": {
+					Symbol:   "fxcbETH",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x4b4327dB1600B8B1440163F667e199CEf35385f5",
+					},
 				},
 			}
+		} else if ec.p.ChainID.Uint64() == 80001 { // mumbai
+			currencyMap = map[string]*RosettaTypes.Currency{
+				// bridged USDC
+				"0x0FA8781a83E46826621b3BC094Ea2A0212e71B23": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
+					},
+				},
+				// native USDC
+				"0x9999f7Fea5938fD3b1E26A12c3f2fb024e194f97": {
+					Symbol:   "USDC",
+					Decimals: 6,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x9999f7Fea5938fD3b1E26A12c3f2fb024e194f97",
+					},
+				},
+				"0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa": {
+					Symbol:   "WETH",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
+					},
+				},
+				// VOXEL
+				"0x2040aD0BF3439CD0937F2DCD981996b1e273B173": {
+					Symbol:   "VOXEL",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x2040aD0BF3439CD0937F2DCD981996b1e273B173",
+					},
+				},
+				// PWBTC
+				"0x4630aA9c543314B989C7814c869d249e4f00f45C": {
+					Symbol:   "WBTC",
+					Decimals: 8,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x4630aA9c543314B989C7814c869d249e4f00f45C",
+					},
+				},
+				// PDAI
+				"0x74eeb975CfAe79fBD7A49fDfF3d72664d4B8197b": {
+					Symbol:   "DAI",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x74eeb975CfAe79fBD7A49fDfF3d72664d4B8197b",
+					},
+				},
+				// PCBETH
+				"0x43f79b6730f8D5BC77d1Db75eD4615f73465401E": {
+					Symbol:   "fxWETH2",
+					Decimals: 18,
+					Metadata: map[string]interface{}{
+						ContractAddressKey: "0x43f79b6730f8D5BC77d1Db75eD4615f73465401E",
+					},
+				},
+			}
+		}
+
+		defaultCurrency := &RosettaTypes.Currency{
+			Symbol:   defaultERC20Symbol,
+			Decimals: defaultERC20Decimals,
+			Metadata: map[string]interface{}{
+				ContractAddressKey: contractAddress,
+			},
+		}
+
+		currency := currencyMap[contractAddress]
+
+		// if we don't care about this currency, set to defaultCurrency
+		if currency == nil {
+			currency = defaultCurrency
 		}
 
 		fromOp := &RosettaTypes.Operation{
