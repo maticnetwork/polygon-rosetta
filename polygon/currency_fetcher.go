@@ -113,7 +113,7 @@ func (ecf ERC20CurrencyFetcher) fetchCurrency(
 		return nil, errors.New(RosettaTypes.PrintStruct(decimals.Errors))
 	}
 	// Use default decimals when graphQL call fails
-	if decimals.Data.Block.Call.Status != 1 {
+	if decimals.Data.Block.Call.Status != "0x1" {
 		currency := &RosettaTypes.Currency{
 			Symbol:   defaultERC20Symbol,
 			Decimals: defaultERC20Decimals,
@@ -168,7 +168,7 @@ func (ecf ERC20CurrencyFetcher) fetchCurrency(
 		return nil, errors.New(RosettaTypes.PrintStruct(symbol.Errors))
 	}
 	// Use default symbol when graphQL call fails
-	if symbol.Data.Block.Call.Status != 1 {
+	if symbol.Data.Block.Call.Status != "0x1" {
 		currency := &RosettaTypes.Currency{
 			Symbol:   defaultERC20Symbol,
 			Decimals: int32(decimalsBigInt.Int64()),

@@ -645,7 +645,6 @@ func buildGraphqlCallQuery(blockQuery string, contractAddress string, encodedDat
 	return fmt.Sprintf(`{
 					block(%s){
 						hash
-						number
 						call(data:{
 							to:"%s"
 							data:"%s"
@@ -1283,7 +1282,6 @@ func buildGraphqlBalanceQuery(blockQuery string, address string) string {
 	return fmt.Sprintf(`{
 			block(%s){
 				hash
-				number
 				account(address:"%s"){
 					balance
 					transactionCount
@@ -1415,11 +1413,15 @@ func (ec *Client) Balance(
 		balances = append(balances, nativeBalance)
 	}
 
+	blk, err := ec.getParsedBlock(ctx, "eth_getBlockByHash", bal.Data.Block.Hash, true)
+	if err != nil {
+		return nil, err
+	}
 	return &RosettaTypes.AccountBalanceResponse{
 		Balances: balances,
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Hash:  bal.Data.Block.Hash,
-			Index: bal.Data.Block.Number,
+			Index: blk.BlockIdentifier.Index,
 		},
 		Metadata: map[string]interface{}{
 			"nonce": nonce.Int64(),
@@ -1436,12 +1438,12 @@ type graphqlCallResponse struct {
 	} `json:"errors"`
 	Data struct {
 		Block struct {
-			Hash   string `json:"hash"`
-			Number int64  `json:"number"`
-			Call   struct {
+			Hash string `json:"hash"`
+			//Number int64  `json:"number"`
+			Call struct {
 				Data    string `json:"data"`
-				Status  int64  `json:"status"`
-				GasUsed int64  `json:"gasUsed"`
+				Status  string `json:"status"`
+				GasUsed string `json:"gasUsed"`
 			} `json:"call"`
 		} `json:"block"`
 	} `json:"data"`
